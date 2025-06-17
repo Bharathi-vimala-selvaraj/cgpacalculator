@@ -1,0 +1,80 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class Main extends JFrame {
+    private JTextField[] sgpaFields;
+    private JTextField[] creditFields;
+    private int numSemesters;
+    private JPanel inputPanel;
+
+    public Main() {
+        setTitle("CGPA Calculator - GUI");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(500, 500);
+        setLocationRelativeTo(null);
+
+        String input = JOptionPane.showInputDialog("Enter number of semesters:");
+        try {
+            numSemesters = Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid number. Exiting.");
+            System.exit(0);
+        }
+
+        inputPanel = new JPanel(new GridLayout(numSemesters + 1, 3, 10, 10));
+        inputPanel.setBorder(BorderFactory.createTitledBorder("Enter Semester Details"));
+
+        sgpaFields = new JTextField[numSemesters];
+        creditFields = new JTextField[numSemesters];
+
+        for (int i = 0; i < numSemesters; i++) {
+            inputPanel.add(new JLabel("Semester " + (i + 1) + " SGPA:"));
+            sgpaFields[i] = new JTextField();
+            inputPanel.add(sgpaFields[i]);
+
+            creditFields[i] = new JTextField();
+            creditFields[i].setToolTipText("Total credits for semester " + (i + 1));
+            inputPanel.add(new JLabel("Credits:"));
+            inputPanel.add(creditFields[i]);
+        }
+
+        JButton calculateBtn = new JButton("Calculate CGPA");
+        calculateBtn.addActionListener(e -> calculateCGPA());
+
+        getContentPane().add(inputPanel, BorderLayout.CENTER);
+        getContentPane().add(calculateBtn, BorderLayout.SOUTH);
+
+        setVisible(true);
+    }
+
+    private void calculateCGPA() {
+        double totalPoints = 0;
+        int totalCredits = 0;
+
+        for (int i = 0; i < numSemesters; i++) {
+            try {
+                double sgpa = Double.parseDouble(sgpaFields[i].getText());
+                int credits = Integer.parseInt(creditFields[i].getText());
+
+                totalPoints += sgpa * credits;
+                totalCredits += credits;
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid input in semester " + (i + 1));
+                return;
+            }
+        }
+
+        if (totalCredits == 0) {
+            JOptionPane.showMessageDialog(this, "Total credits cannot be zero.");
+            return;
+        }
+
+        double cgpa = totalPoints / totalCredits;
+        JOptionPane.showMessageDialog(this, "Your CGPA is: " + String.format("%.2f", cgpa));
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(Main::new);
+    }
+}
